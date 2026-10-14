@@ -1,0 +1,10 @@
+[package]
+name = "aws-obs"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+# AWS SDK clients (aws-config, aws-sdk-cloudwatchlogs, aws-sdk-xray)
+# land here in M2. Keeping the crate dependency-free until then so
+# `cargo test` stays fast during M0/M1.

@@ -1,0 +1,14 @@
+/target
+.env
+*.log
+.DS_Store
+
+# Tauri frontend (M3)
+app/node_modules/
+app/dist/
+app/src-tauri/target/
+
+# Local synth output. Test fixtures live under
+# crates/*/tests/fixtures and use distinct dir names,
+# so this never ignores them.
+cdk.out/

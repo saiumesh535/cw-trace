@@ -1,0 +1,65 @@
+{
+  "version": "tree-0.1",
+  "tree": {
+    "id": "App",
+    "path": "",
+    "children": {
+      "SampleStack": {
+        "id": "SampleStack",
+        "path": "SampleStack",
+        "children": {
+          "CreateOrder": {
+            "id": "CreateOrder",
+            "path": "SampleStack/CreateOrder",
+            "children": {
+              "Resource": {
+                "id": "Resource",
+                "path": "SampleStack/CreateOrder/Resource",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::Lambda::Function",
+                  "aws:cdk:cloudformation:props": {
+                    "functionName": "sample-create-order",
+                    "handler": "index.handler",
+                    "runtime": "nodejs22.x"
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_lambda.CfnFunction",
+                  "version": "2.100.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_lambda.Function",
+              "version": "2.100.0"
+            }
+          },
+          "CreateOrderLogGroup": {
+            "id": "CreateOrderLogGroup",
+            "path": "SampleStack/CreateOrderLogGroup",
+            "children": {
+              "Resource": {
+                "id": "Resource",
+                "path": "SampleStack/CreateOrderLogGroup/Resource",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::Logs::LogGroup",
+                  "aws:cdk:cloudformation:props": {
+                    "logGroupName": "/aws/lambda/sample-create-order"
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_logs.CfnLogGroup",
+                  "version": "2.100.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_logs.LogGroup",
+              "version": "2.100.0"
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "Resources": {
+    "CreateOrder7AA1FBAB": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "FunctionName": "sample-create-order",
+        "Handler": "index.handler",
+        "Runtime": "nodejs22.x"
+      }
+    },
+    "CreateOrderLogGroupE9B0C442": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/sample-create-order",
+        "RetentionInDays": 30
+      }
+    }
+  }
+}

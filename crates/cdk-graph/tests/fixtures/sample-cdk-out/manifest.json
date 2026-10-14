@@ -1,0 +1,14 @@
+{
+  "version": "36.0.0",
+  "artifacts": {
+    "SampleStack": {
+      "type": "aws:cloudformation:stack",
+      "properties": {
+        "templateFile": "SampleStack.template.json"
+      }
+    },
+    "Tree": {
+      "type": "cdk:tree"
+    }
+  }
+}
