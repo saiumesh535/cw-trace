@@ -5,6 +5,44 @@
       "type": "aws:cloudformation:stack",
       "properties": {
         "templateFile": "SampleStack.template.json"
+      },
+      "metadata": {
+        "/SampleStack/CreateOrder/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CreateOrder7AA1FBAB"
+          }
+        ],
+        "/SampleStack/CreateOrderLogGroup/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CreateOrderLogGroupE9B0C442"
+          }
+        ],
+        "/SampleStack/InferredWorker/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "InferredWorker3F2A1B9C"
+          }
+        ],
+        "/SampleStack/OrdersApiStage/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "OrdersApiStageA1B2C3D4"
+          }
+        ],
+        "/SampleStack/WorkerTaskDef/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WorkerTaskDefE5F6A7B8"
+          }
+        ],
+        "/SampleStack/ProcessOrders/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ProcessOrdersC9D0E1F2"
+          }
+        ]
       }
     },
     "Tree": {

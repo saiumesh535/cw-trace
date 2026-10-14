@@ -57,6 +57,125 @@
               "fqn": "aws-cdk-lib.aws_logs.LogGroup",
               "version": "2.100.0"
             }
+          },
+          "InferredWorker": {
+            "id": "InferredWorker",
+            "path": "SampleStack/InferredWorker",
+            "children": {
+              "Resource": {
+                "id": "Resource",
+                "path": "SampleStack/InferredWorker/Resource",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::Lambda::Function",
+                  "aws:cdk:cloudformation:props": {
+                    "functionName": "sample-inferred-worker",
+                    "handler": "worker.handler",
+                    "runtime": "nodejs22.x"
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_lambda.CfnFunction",
+                  "version": "2.100.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_lambda.Function",
+              "version": "2.100.0"
+            }
+          },
+          "OrdersApiStage": {
+            "id": "OrdersApiStage",
+            "path": "SampleStack/OrdersApiStage",
+            "children": {
+              "Resource": {
+                "id": "Resource",
+                "path": "SampleStack/OrdersApiStage/Resource",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::ApiGateway::Stage",
+                  "aws:cdk:cloudformation:props": {
+                    "accessLogSetting": {
+                      "destinationArn": "arn:aws:logs:us-east-1:123456789012:log-group:/aws/apigateway/orders-access-logs:*"
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_apigateway.CfnStage",
+                  "version": "2.100.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_apigateway.Stage",
+              "version": "2.100.0"
+            }
+          },
+          "WorkerTaskDef": {
+            "id": "WorkerTaskDef",
+            "path": "SampleStack/WorkerTaskDef",
+            "children": {
+              "Resource": {
+                "id": "Resource",
+                "path": "SampleStack/WorkerTaskDef/Resource",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::ECS::TaskDefinition",
+                  "aws:cdk:cloudformation:props": {
+                    "containerDefinitions": [
+                      {
+                        "name": "worker",
+                        "logConfiguration": {
+                          "logDriver": "awslogs",
+                          "options": {
+                            "awslogs-group": "/ecs/worker",
+                            "awslogs-region": "us-east-1"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_ecs.CfnTaskDefinition",
+                  "version": "2.100.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_ecs.TaskDefinition",
+              "version": "2.100.0"
+            }
+          },
+          "ProcessOrders": {
+            "id": "ProcessOrders",
+            "path": "SampleStack/ProcessOrders",
+            "children": {
+              "Resource": {
+                "id": "Resource",
+                "path": "SampleStack/ProcessOrders/Resource",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::StepFunctions::StateMachine",
+                  "aws:cdk:cloudformation:props": {
+                    "loggingConfiguration": {
+                      "destinations": [
+                        {
+                          "cloudWatchLogsLogGroup": {
+                            "logGroupArn": "arn:aws:logs:us-east-1:123456789012:log-group:/aws/states/process-orders:*"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_stepfunctions.CfnStateMachine",
+                  "version": "2.100.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_stepfunctions.StateMachine",
+              "version": "2.100.0"
+            }
           }
         }
       }

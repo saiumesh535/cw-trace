@@ -14,6 +14,53 @@
         "LogGroupName": "/aws/lambda/sample-create-order",
         "RetentionInDays": 30
       }
+    },
+    "InferredWorker3F2A1B9C": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "FunctionName": "sample-inferred-worker",
+        "Handler": "worker.handler",
+        "Runtime": "nodejs22.x"
+      }
+    },
+    "OrdersApiStageA1B2C3D4": {
+      "Type": "AWS::ApiGateway::Stage",
+      "Properties": {
+        "AccessLogSetting": {
+          "DestinationArn": "arn:aws:logs:us-east-1:123456789012:log-group:/aws/apigateway/orders-access-logs:*"
+        }
+      }
+    },
+    "WorkerTaskDefE5F6A7B8": {
+      "Type": "AWS::ECS::TaskDefinition",
+      "Properties": {
+        "ContainerDefinitions": [
+          {
+            "Name": "worker",
+            "LogConfiguration": {
+              "LogDriver": "awslogs",
+              "Options": {
+                "awslogs-group": "/ecs/worker",
+                "awslogs-region": "us-east-1"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "ProcessOrdersC9D0E1F2": {
+      "Type": "AWS::StepFunctions::StateMachine",
+      "Properties": {
+        "LoggingConfiguration": {
+          "Destinations": [
+            {
+              "CloudWatchLogsLogGroup": {
+                "LogGroupArn": "arn:aws:logs:us-east-1:123456789012:log-group:/aws/states/process-orders:*"
+              }
+            }
+          ]
+        }
+      }
     }
   }
 }

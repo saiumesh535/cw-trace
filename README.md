@@ -8,7 +8,7 @@ See [`docs/PRD.md`](docs/PRD.md) for the full product requirements.
 
 ## Status
 
-M0 (scaffold). Core crates compile; `logs` / `trace` commands land in M2; the Tauri + Svelte desktop app lands in M3.
+M2 (CLI logs + traces). `graph`, `logs <ConstructPath>`, and `trace <id>` work from the terminal; the Tauri + Svelte desktop app lands in M3.
 
 ## Layout
 
@@ -28,6 +28,10 @@ docs/PRD.md         # product requirements
 cargo build --workspace
 cargo test --workspace
 cargo run -p cw-trace-cli -- status
+cargo run -p cw-trace-cli -- graph --cdk-out crates/cdk-graph/tests/fixtures/sample-cdk-out
+# Needs AWS credentials (standard chain: profiles/SSO, --profile/--region):
+cargo run -p cw-trace-cli -- logs SampleStack/CreateOrder --cdk-out crates/cdk-graph/tests/fixtures/sample-cdk-out -b3h --limit 50
+cargo run -p cw-trace-cli -- trace 1-5f5e1000-abcdef1234567890abcdef12 --cdk-out crates/cdk-graph/tests/fixtures/sample-cdk-out
 ```
 
 Prerequisites: stable Rust (edition 2024). M2+ needs AWS credentials (profiles/SSO via the standard chain). M3 needs Node.js for the Svelte frontend.
