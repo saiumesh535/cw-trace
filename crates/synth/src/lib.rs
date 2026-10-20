@@ -1,11 +1,13 @@
 //! CDK project discovery and synthesis.
 //!
-//! Locates the `cdk.json` for a project and (from M0 onward: runs) the
-//! synthesis step that produces `cdk.out/`, which [`cdk_graph`] parses.
+//! Locates the `cdk.json` for a project and runs `cdk synth` to produce
+//! `cdk.out/`, which [`cdk_graph`] parses.
 //!
 //! See `docs/PRD.md` for the product context.
 
 use std::path::{Path, PathBuf};
+use std::process::Command;
+use std::time::Duration;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -14,8 +16,19 @@ pub enum SynthError {
     NoCdkJson { path: String },
     #[error("invalid cdk.json at {path}: {reason}")]
     InvalidCdkJson { path: String, reason: String },
+    #[error("cdk synth failed: {stderr}")]
+    SynthFailed { stderr: String },
+    #[error("cdk synth timed out after {secs}s")]
+    TimedOut { secs: u64 },
     #[error("io error: {0}")]
     Io(#[from] std::io::Error),
+}
+
+/// Result of a successful `cdk synth`.
+#[derive(Debug, Clone)]
+pub struct SynthResult {
+    pub outdir: PathBuf,
+    pub stdout: String,
 }
 
 /// A CDK project rooted at the directory containing `cdk.json`.
@@ -89,6 +102,63 @@ impl CdkProject {
     /// `manifest.json` inside the synthesis output directory.
     pub fn manifest_json(&self) -> PathBuf {
         self.outdir.join("manifest.json")
+    }
+
+    /// Run `npx cdk synth` into this project's outdir (FR-3).
+    ///
+    /// Uses the CDK CLI so `cdk.json` `app` is honored. Falls through to a
+    /// clear error when Node/`cdk` aren't installed.
+    pub fn synthesize(&self, timeout: Duration) -> Result<SynthResult, SynthError> {
+        let secs = timeout.as_secs().max(1);
+        let outdir = self.outdir.display().to_string();
+        let root = self.root.clone();
+        let tree_json = self.tree_json();
+        let outdir_path = self.outdir.clone();
+
+        let (tx, rx) = std::sync::mpsc::channel();
+        std::thread::spawn(move || {
+            let result = Command::new("npx")
+                .args(["--yes", "cdk", "synth", "--quiet", "-o", &outdir])
+                .current_dir(&root)
+                .env("CDK_DISABLE_NOTICES", "1")
+                .env("CI", "1")
+                .output();
+            let _ = tx.send(result);
+        });
+
+        let output = match rx.recv_timeout(timeout) {
+            Ok(Ok(o)) => o,
+            Ok(Err(e)) => {
+                return if e.kind() == std::io::ErrorKind::NotFound {
+                    Err(SynthError::SynthFailed {
+                        stderr: "npx not found — install Node.js and try again, or use an existing cdk.out".to_string(),
+                    })
+                } else {
+                    Err(SynthError::Io(e))
+                };
+            }
+            Err(_) => return Err(SynthError::TimedOut { secs }),
+        };
+
+        let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+        let stderr = String::from_utf8_lossy(&output.stderr).trim().to_string();
+        if !output.status.success() {
+            let msg = if stderr.is_empty() {
+                format!("exit status {}", output.status)
+            } else {
+                stderr
+            };
+            return Err(SynthError::SynthFailed { stderr: msg });
+        }
+        if !tree_json.is_file() {
+            return Err(SynthError::SynthFailed {
+                stderr: format!("synth finished but {} is missing", tree_json.display()),
+            });
+        }
+        Ok(SynthResult {
+            outdir: outdir_path,
+            stdout,
+        })
     }
 }
 

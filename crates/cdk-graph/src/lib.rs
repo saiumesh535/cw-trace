@@ -30,8 +30,8 @@ pub enum GraphError {
     InvalidJson { file: String, reason: String },
 }
 
-/// An AWS resource kind relevant to log/trace debugging.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+/// An AWS resource kind relevant to log/trace debugging and the construct map.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum ResourceKind {
     LambdaFunction,
@@ -42,6 +42,12 @@ pub enum ResourceKind {
     EcsService,
     EcsTaskDefinition,
     StateMachine,
+    DynamoDbTable,
+    SqsQueue,
+    SnsTopic,
+    S3Bucket,
+    KinesisStream,
+    EventBridgeRule,
     Unknown,
 }
 
@@ -57,13 +63,49 @@ impl ResourceKind {
             "AWS::ECS::Service" => Self::EcsService,
             "AWS::ECS::TaskDefinition" => Self::EcsTaskDefinition,
             "AWS::StepFunctions::StateMachine" => Self::StateMachine,
+            "AWS::DynamoDB::Table" => Self::DynamoDbTable,
+            "AWS::SQS::Queue" => Self::SqsQueue,
+            "AWS::SNS::Topic" => Self::SnsTopic,
+            "AWS::S3::Bucket" => Self::S3Bucket,
+            "AWS::Kinesis::Stream" => Self::KinesisStream,
+            "AWS::Events::Rule" => Self::EventBridgeRule,
             _ => Self::Unknown,
+        }
+    }
+
+    /// Column for the construct map layout (ingress / compute / data).
+    pub fn map_column(&self) -> Option<&'static str> {
+        match self {
+            Self::RestApi | Self::HttpApi | Self::ApiStage | Self::EventBridgeRule => {
+                Some("in")
+            }
+            Self::LambdaFunction
+            | Self::EcsService
+            | Self::EcsTaskDefinition
+            | Self::StateMachine => Some("compute"),
+            Self::DynamoDbTable
+            | Self::SqsQueue
+            | Self::SnsTopic
+            | Self::S3Bucket
+            | Self::KinesisStream => Some("data"),
+            Self::LogGroup | Self::Unknown => None,
         }
     }
 }
 
+/// A dependency edge between two constructs (`from` references `to`).
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ResourceEdge {
+    /// Construct path of the resource that holds the Ref / GetAtt.
+    pub from: String,
+    /// Construct path of the referenced resource.
+    pub to: String,
+    /// How the link was discovered (`Ref` or `GetAtt`).
+    pub via: String,
+}
+
 /// How a log-group mapping was derived (FR-8).
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Confidence {
     /// Read from an explicit `LogGroupName` / log config / access-log destination.
@@ -74,7 +116,7 @@ pub enum Confidence {
 
 /// A single node in the resource graph: an AWS resource discovered from
 /// `tree.json` / `manifest.json` / synthesized templates.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ResourceNode {
     /// Construct path without trailing `/Resource`, e.g. `SampleStack/CreateOrder`.
     pub construct_path: String,
@@ -93,13 +135,23 @@ pub struct ResourceNode {
     /// How `log_group` was derived (set whenever `log_group` is set).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub confidence: Option<Confidence>,
+    /// Lambda function name (from `FunctionName` / `functionName`).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub function_name: Option<String>,
+    /// Lambda runtime (from `Runtime` / `runtime`).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub runtime: Option<String>,
+    /// Physical / logical name for data-plane resources (table, queue, …).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub resource_name: Option<String>,
 }
 
-/// Owns the nodes of the resource graph. Edges (e.g. Lambda → LogGroup)
-/// are derived on demand in M1.
-#[derive(Debug, Default)]
+/// Owns the nodes and dependency edges of the resource graph.
+#[derive(Debug, Default, Serialize)]
 pub struct ResourceGraph {
     nodes: Vec<ResourceNode>,
+    #[serde(default)]
+    edges: Vec<ResourceEdge>,
 }
 
 impl ResourceGraph {
@@ -113,6 +165,10 @@ impl ResourceGraph {
 
     pub fn nodes(&self) -> &[ResourceNode] {
         &self.nodes
+    }
+
+    pub fn edges(&self) -> &[ResourceEdge] {
+        &self.edges
     }
 
     pub fn len(&self) -> usize {
@@ -187,6 +243,24 @@ impl ResourceGraph {
                 let (log_group, confidence) =
                     extract_log_group(&raw.cfn_type, template_props.as_ref(), raw.tree_props.as_ref());
 
+                // Lambda extras for the debugger (invoke command, node cards).
+                let (function_name, runtime) = if raw.cfn_type == "AWS::Lambda::Function" {
+                    (
+                        str_prop(template_props.as_ref(), &["FunctionName"])
+                            .or_else(|| str_prop(raw.tree_props.as_ref(), &["functionName"])),
+                        str_prop(template_props.as_ref(), &["Runtime"])
+                            .or_else(|| str_prop(raw.tree_props.as_ref(), &["runtime"])),
+                    )
+                } else {
+                    (None, None)
+                };
+
+                let resource_name = extract_resource_name(
+                    &raw.cfn_type,
+                    template_props.as_ref(),
+                    raw.tree_props.as_ref(),
+                );
+
                 ResourceNode {
                     construct_path: raw.display_path,
                     cfn_type: raw.cfn_type.clone(),
@@ -195,6 +269,9 @@ impl ResourceGraph {
                     fqn: raw.effective_fqn,
                     log_group,
                     confidence,
+                    function_name,
+                    runtime,
+                    resource_name,
                 }
             })
             .collect();
@@ -216,8 +293,11 @@ impl ResourceGraph {
             }
         }
 
+        // 4. Dependency edges from Ref / Fn::GetAtt in template properties.
+        let edges = extract_edges(&nodes, &templates);
+
         nodes.sort_by(|a, b| a.construct_path.cmp(&b.construct_path));
-        Ok(Self { nodes })
+        Ok(Self { nodes, edges })
     }
 }
 
@@ -452,6 +532,12 @@ fn fallback_logical_id(
     let want_lg = tree_props
         .and_then(|p| p.get("logGroupName"))
         .and_then(|v| v.as_str());
+    let want_table = tree_props
+        .and_then(|p| p.get("tableName"))
+        .and_then(|v| v.as_str());
+    let want_queue = tree_props
+        .and_then(|p| p.get("queueName"))
+        .and_then(|v| v.as_str());
     let mut candidates: Vec<&String> = templates
         .iter()
         .filter(|(_, r)| r.resource_type == cfn_type)
@@ -472,12 +558,168 @@ fn fallback_logical_id(
                     .and_then(|v| v.as_str())
                     == Some(want);
             }
+            if let Some(want) = want_table {
+                return r
+                    .properties
+                    .as_ref()
+                    .and_then(|p| p.get("TableName"))
+                    .and_then(|v| v.as_str())
+                    == Some(want);
+            }
+            if let Some(want) = want_queue {
+                return r
+                    .properties
+                    .as_ref()
+                    .and_then(|p| p.get("QueueName"))
+                    .and_then(|v| v.as_str())
+                    == Some(want);
+            }
             false
         })
         .map(|(id, _)| id)
         .collect();
     candidates.sort();
     candidates.into_iter().next().cloned()
+}
+
+/// Physical name for data-plane resources (used by span → construct matching).
+fn extract_resource_name(
+    cfn_type: &str,
+    template_props: Option<&serde_json::Value>,
+    tree_props: Option<&serde_json::Value>,
+) -> Option<String> {
+    match cfn_type {
+        "AWS::DynamoDB::Table" => str_prop(template_props, &["TableName"])
+            .or_else(|| str_prop(tree_props, &["tableName"])),
+        "AWS::SQS::Queue" => str_prop(template_props, &["QueueName"])
+            .or_else(|| str_prop(tree_props, &["queueName"])),
+        "AWS::SNS::Topic" => str_prop(template_props, &["TopicName"])
+            .or_else(|| str_prop(tree_props, &["topicName"])),
+        "AWS::S3::Bucket" => str_prop(template_props, &["BucketName"])
+            .or_else(|| str_prop(tree_props, &["bucketName"])),
+        "AWS::Kinesis::Stream" => str_prop(template_props, &["Name"])
+            .or_else(|| str_prop(tree_props, &["streamName"])),
+        "AWS::Events::Rule" => str_prop(template_props, &["Name"])
+            .or_else(|| str_prop(tree_props, &["ruleName"])),
+        _ => None,
+    }
+}
+
+/// Resources that dominate Ref counts and say nothing about the request path.
+fn is_noise_cfn_type(cfn_type: &str) -> bool {
+    matches!(
+        cfn_type,
+        "AWS::IAM::Role"
+            | "AWS::IAM::Policy"
+            | "AWS::IAM::ManagedPolicy"
+            | "AWS::IAM::InstanceProfile"
+            | "AWS::Logs::LogGroup"
+            | "AWS::CDK::Metadata"
+            | "AWS::Lambda::Permission"
+            | "AWS::ApiGateway::Account"
+            | "AWS::ApiGateway::Deployment"
+    ) || cfn_type.starts_with("Custom::")
+}
+
+fn is_unresolved_token(s: &str) -> bool {
+    s.contains("${Token[") || s.contains("DUMMY") || s.starts_with("${")
+}
+
+/// Walk template properties collecting `Ref` / `Fn::GetAtt` logical IDs.
+fn collect_intrinsic_refs(value: &serde_json::Value, out: &mut Vec<(String, &'static str)>) {
+    match value {
+        serde_json::Value::Object(map) => {
+            if let Some(r) = map.get("Ref").and_then(|v| v.as_str()) {
+                if !is_unresolved_token(r) && !r.starts_with("AWS::") {
+                    out.push((r.to_string(), "Ref"));
+                }
+                return;
+            }
+            if let Some(get_att) = map.get("Fn::GetAtt") {
+                let target = match get_att {
+                    serde_json::Value::Array(arr) => arr.first().and_then(|v| v.as_str()),
+                    serde_json::Value::String(s) => s.split('.').next(),
+                    _ => None,
+                };
+                if let Some(id) = target
+                    && !is_unresolved_token(id)
+                {
+                    out.push((id.to_string(), "GetAtt"));
+                }
+                return;
+            }
+            for v in map.values() {
+                collect_intrinsic_refs(v, out);
+            }
+        }
+        serde_json::Value::Array(arr) => {
+            for v in arr {
+                collect_intrinsic_refs(v, out);
+            }
+        }
+        _ => {}
+    }
+}
+
+fn extract_edges(
+    nodes: &[ResourceNode],
+    templates: &HashMap<String, CfnResource>,
+) -> Vec<ResourceEdge> {
+    let by_logical: HashMap<&str, &ResourceNode> = nodes
+        .iter()
+        .filter_map(|n| n.logical_id.as_deref().map(|id| (id, n)))
+        .collect();
+
+    let mut edges = Vec::new();
+    let mut seen = HashSet::new();
+
+    for node in nodes {
+        let Some(logical_id) = node.logical_id.as_deref() else {
+            continue;
+        };
+        if is_noise_cfn_type(&node.cfn_type) {
+            continue;
+        }
+        let Some(res) = templates.get(logical_id) else {
+            continue;
+        };
+        let Some(props) = res.properties.as_ref() else {
+            continue;
+        };
+
+        let mut refs = Vec::new();
+        collect_intrinsic_refs(props, &mut refs);
+
+        for (target_id, via) in refs {
+            let Some(target) = by_logical.get(target_id.as_str()) else {
+                continue;
+            };
+            if is_noise_cfn_type(&target.cfn_type) {
+                continue;
+            }
+            if target.construct_path == node.construct_path {
+                continue;
+            }
+            let key = (
+                node.construct_path.clone(),
+                target.construct_path.clone(),
+                via,
+            );
+            if !seen.insert(key.clone()) {
+                continue;
+            }
+            edges.push(ResourceEdge {
+                from: key.0,
+                to: key.1,
+                via: via.to_string(),
+            });
+        }
+    }
+
+    edges.sort_by(|a, b| {
+        (&a.from, &a.to, &a.via).cmp(&(&b.from, &b.to, &b.via))
+    });
+    edges
 }
 
 // --- log-group extraction (FR-7 / FR-8) ---
@@ -657,6 +899,9 @@ mod tests {
             fqn: None,
             log_group: Some("/aws/lambda/sample-create-order".to_string()),
             confidence: Some(Confidence::Inferred),
+            function_name: Some("sample-create-order".to_string()),
+            runtime: Some("nodejs22.x".to_string()),
+            resource_name: None,
         });
         graph.push(ResourceNode {
             construct_path: "SampleStack/CreateOrder/Role".to_string(),
@@ -666,6 +911,9 @@ mod tests {
             fqn: None,
             log_group: None,
             confidence: None,
+            function_name: None,
+            runtime: None,
+            resource_name: None,
         });
 
         assert_eq!(graph.len(), 2);
@@ -677,7 +925,7 @@ mod tests {
     #[test]
     fn parses_sample_cdk_out() {
         let graph = ResourceGraph::from_cdk_out(&fixture_dir()).unwrap();
-        assert_eq!(graph.len(), 6);
+        assert_eq!(graph.len(), 8);
 
         let by_path = |p: &str| {
             graph
@@ -700,6 +948,8 @@ mod tests {
             Some("/aws/lambda/sample-create-order")
         );
         assert_eq!(lambda.confidence, Some(Confidence::Resolved));
+        assert_eq!(lambda.function_name.as_deref(), Some("sample-create-order"));
+        assert_eq!(lambda.runtime.as_deref(), Some("nodejs22.x"));
 
         let log_group = by_path("SampleStack/CreateOrderLogGroup");
         assert_eq!(log_group.kind, ResourceKind::LogGroup);
@@ -740,6 +990,27 @@ mod tests {
             Some("/aws/states/process-orders")
         );
         assert_eq!(sfn.confidence, Some(Confidence::Resolved));
+
+        // Data-plane nodes (no log groups).
+        let table = by_path("SampleStack/OrdersTable");
+        assert_eq!(table.kind, ResourceKind::DynamoDbTable);
+        assert_eq!(table.resource_name.as_deref(), Some("sample-orders"));
+        assert!(table.log_group.is_none());
+
+        let queue = by_path("SampleStack/OrdersQueue");
+        assert_eq!(queue.kind, ResourceKind::SqsQueue);
+        assert_eq!(queue.resource_name.as_deref(), Some("sample-orders-queue"));
+
+        // CreateOrder → table / queue via Env Ref / GetAtt.
+        let edge_tos: HashSet<&str> = graph
+            .edges()
+            .iter()
+            .filter(|e| e.from == "SampleStack/CreateOrder")
+            .map(|e| e.to.as_str())
+            .collect();
+        assert!(edge_tos.contains("SampleStack/OrdersTable"));
+        assert!(edge_tos.contains("SampleStack/OrdersQueue"));
+        assert!(graph.edges().iter().all(|e| e.via == "Ref" || e.via == "GetAtt"));
 
         // Every mapped group is reachable via log_groups().
         assert_eq!(graph.log_groups().count(), 6);

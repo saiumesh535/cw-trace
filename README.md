@@ -8,7 +8,13 @@ See [`docs/PRD.md`](docs/PRD.md) for the full product requirements.
 
 ## Status
 
-M2 (CLI logs + traces). `graph`, `logs <ConstructPath>`, and `trace <id>` work from the terminal; the Tauri + Svelte desktop app lands in M3.
+M3 feature-complete. CLI (`graph`, `logs`, `trace`, `--live`) and the Tauri 2
++ Svelte 5 desktop app both run over the same core: construct tree, cursor-
+paginated log search, StartLiveTail streaming (polling fallback), nested
+X-Ray waterfall with segment→construct jumps, error triage, deep links
+(`cw-trace://`), and a session region override. Bundles are built from
+`.github/workflows/release.yml` on `v*` tags; see `docs/IAM.md` for the
+minimal read-only policy.
 
 ## Layout
 
@@ -18,8 +24,9 @@ crates/synth/       # locate cdk.json, run `cdk synth`, find cdk.out
 crates/aws-obs/     # CloudWatch Logs + X-Ray access (M2)
 crates/correlate/   # log ↔ trace ID extraction (no AWS calls)
 crates/cli/         # `cw-trace` binary (thin CLI over the core)
-app/                # Tauri backend + Svelte frontend (M3, not yet scaffolded)
+app/                # Tauri backend + Svelte frontend (M3, see app/README.md)
 docs/PRD.md         # product requirements
+docs/IAM.md         # minimal read-only IAM policy
 ```
 
 ## Develop
@@ -34,7 +41,7 @@ cargo run -p cw-trace-cli -- logs SampleStack/CreateOrder --cdk-out crates/cdk-g
 cargo run -p cw-trace-cli -- trace 1-5f5e1000-abcdef1234567890abcdef12 --cdk-out crates/cdk-graph/tests/fixtures/sample-cdk-out
 ```
 
-Prerequisites: stable Rust (edition 2024). M2+ needs AWS credentials (profiles/SSO via the standard chain). M3 needs Node.js for the Svelte frontend.
+Prerequisites: stable Rust (edition 2024). M2+ needs AWS credentials (profiles/SSO via the standard chain). M3 needs **pnpm** for the Svelte frontend (see `app/README.md`).
 
 ## License
 

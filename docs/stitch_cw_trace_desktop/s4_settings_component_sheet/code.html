@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"surface-container":"#1c2028","surface-container-high":"#262a33","secondary-container":"#00a6e0","tertiary-fixed":"#e9ddff","on-tertiary-fixed-variant":"#5516be","inverse-on-surface":"#2c3039","on-surface":"#dfe2ee","secondary":"#7bd0ff","primary-container":"#f97316","error":"#ffb4ab","on-primary-container":"#582200","on-tertiary":"#3c0091","error-container":"#93000a","on-secondary-fixed-variant":"#004c69","secondary-fixed-dim":"#7bd0ff","on-primary-fixed-variant":"#783200","on-secondary":"#00354a","on-tertiary-fixed":"#23005c","outline-variant":"#584237","surface-container-low":"#181c24","surface":"#0f131c","inverse-primary":"#9d4300","tertiary":"#d0bcff","secondary-fixed":"#c4e7ff","on-error-container":"#ffdad6","primary-fixed-dim":"#ffb690","surface-container-highest":"#31353e","on-secondary-fixed":"#001e2c","on-background":"#dfe2ee","primary":"#ffb690","on-secondary-container":"#00374d","on-surface-variant":"#e0c0b1","surface-tint":"#ffb690","surface-bright":"#353942","background":"#0f131c","inverse-surface":"#dfe2ee","on-primary":"#552100","surface-container-lowest":"#0a0e16","on-tertiary-container":"#3e0096","primary-fixed":"#ffdbca","tertiary-container":"#a985ff","surface-variant":"#31353e","on-primary-fixed":"#341100","surface-dim":"#0f131c","outline":"#a78b7d","tertiary-fixed-dim":"#d0bcff","on-error":"#690005"},borderRadius:{DEFAULT:"0.125rem",lg:"0.25rem",xl:"0.5rem",full:"0.75rem"},spacing:{"space-sm":"0.5rem","space-lg":"1rem","space-md":"0.75rem","space-xs":"0.25rem","space-xl":"1.5rem",gutter:"0.75rem",margin:"1rem","gutter-sm":"0.5rem","margin-sm":"0.5rem","margin-lg":"1.5rem","gutter-lg":"1rem"},fontFamily:{"headline-md":["Geist"],"code-lg":["JetBrains Mono"],"code-sm":["JetBrains Mono"],"headline-xl":["Geist"],"label-sm":["JetBrains Mono"],"headline-lg":["Geist"],"body-sm":["Geist"],"body-lg":["Geist"],"body-md":["Geist"],"code-md":["JetBrains Mono"],"label-md":["JetBrains Mono"]},fontSize:{"headline-md":["15px",{lineHeight:"20px",letterSpacing:"-0.01em",fontWeight:"500"}],"code-lg":["13px",{lineHeight:"18px",fontWeight:"500"}],"code-sm":["11px",{lineHeight:"14px",letterSpacing:"-0.01em",fontWeight:"400"}],"headline-xl":["24px",{lineHeight:"32px",letterSpacing:"-0.02em",fontWeight:"600"}],"label-sm":["10px",{lineHeight:"12px",letterSpacing:"0.06em",fontWeight:"600"}],"headline-lg":["18px",{lineHeight:"24px",letterSpacing:"-0.015em",fontWeight:"600"}],"body-sm":["12px",{lineHeight:"16px",fontWeight:"400"}],"body-lg":["14px",{lineHeight:"20px",fontWeight:"400"}],"body-md":["13px",{lineHeight:"18px",fontWeight:"400"}],"code-md":["12px",{lineHeight:"16px",fontWeight:"400"}],"label-md":["11px",{lineHeight:"14px",letterSpacing:"0.04em",fontWeight:"500"}]}}}};</script></head><body class="bg-surface-container-lowest text-on-surface font-body-md min-w-[1280px]"><aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-low shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-50 flex flex-col justify-between select-none"><div class="flex flex-col"><div class="h-12 px-space-md flex items-center gap-space-sm bg-surface-container-lowest"><img alt="cw-trace logo" class="h-5 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1VKeu1zY7JpLJ8TmIvfjHURo8_owmnYSW9o_1T2X0G4_oBh4N7w9su6HwtgIiH9g_MBmrnijhDiorVZ8CiXUKSLA7rIUJ-ZGwLyx6jDfYbuuC7hfdiy2_5Xg2QPXXT_xYZXhaM2aDNn7rU7n6SLzUl6fPI7zafp0uF8jTkj31lfIPclG5wBtXQMHzOHT24CL6wdWn152TQu0LwfLMpN6srO7Q4Z3XofFRLs3Ya24vDi6jLl5zYweTMaKg0G"/><span class="font-code-lg text-code-lg text-on-surface tracking-tight font-semibold">cw-trace</span><span class="px-space-xs py-0.5 rounded bg-surface-container-high font-label-sm text-label-sm text-outline">v0.9.4 local</span></div><nav class="px-space-xs pt-space-sm flex flex-col gap-0.5" data-active-classes="bg-surface-container-high text-on-surface font-semibold"><a class="flex items-center justify-between px-space-sm py-1.5 rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="dashboard" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[16px]">terminal</span><span class="font-body-sm text-body-sm">Home</span></div><kbd class="font-code-sm text-code-sm text-outline px-1 rounded bg-surface-container-lowest">⌘1</kbd></a></nav><div class="mt-space-md px-space-sm"><span class="font-label-sm text-label-sm text-outline uppercase tracking-wider block mb-space-xs">PINNED</span><nav class="flex flex-col gap-0.5" data-active-classes="bg-surface-container-high text-on-surface font-semibold"><a class="flex items-center justify-between px-space-sm py-1.5 rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors group" data-path="dev-orders-svc" href="#"><div class="flex items-center gap-space-xs overflow-hidden"><span class="text-[8px] text-[#34D399] leading-none">●</span><span class="font-code-sm text-code-sm truncate">dev — orders-svc</span></div><div class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-[13px] text-outline group-hover:text-on-surface-variant">push_pin</span><kbd class="font-code-sm text-code-sm text-outline px-1 rounded bg-surface-container-lowest">⌘2</kbd></div></a><a class="flex items-center justify-between px-space-sm py-1.5 rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors group" data-path="prod-orders-svc" href="#"><div class="flex items-center gap-space-xs overflow-hidden"><span class="text-[8px] text-[#34D399] leading-none">●</span><span class="font-code-sm text-code-sm truncate">prod — orders-svc</span></div><div class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-[13px] text-outline group-hover:text-on-surface-variant">push_pin</span><kbd class="font-code-sm text-code-sm text-outline px-1 rounded bg-surface-container-lowest">⌘3</kbd></div></a><a class="flex items-center justify-between px-space-sm py-1.5 rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors group" data-path="staging-billing-svc" href="#"><div class="flex items-center gap-space-xs overflow-hidden"><span class="text-[8px] text-error leading-none">●</span><span class="font-code-sm text-code-sm truncate">staging — billing-svc</span></div><div class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-[13px] text-outline group-hover:text-on-surface-variant">push_pin</span><kbd class="font-code-sm text-code-sm text-outline px-1 rounded bg-surface-container-lowest">⌘4</kbd></div></a></nav></div><div class="mt-space-md px-space-sm"><span class="font-label-sm text-label-sm text-outline uppercase tracking-wider block mb-space-xs">PROJECTS</span><nav class="flex flex-col gap-0.5" data-active-classes="bg-surface-container-high text-on-surface font-semibold"><a class="flex items-center justify-between px-space-sm py-1.5 rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="project-orders-svc" href="#"><div class="flex items-center gap-space-sm overflow-hidden"><span class="material-symbols-outlined text-[15px] text-outline">folder</span><span class="font-code-sm text-code-sm truncate">orders-svc</span></div><span class="font-label-sm text-label-sm px-1 rounded bg-surface-container text-outline">2 stages</span></a><a class="flex items-center justify-between px-space-sm py-1.5 rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="project-billing-svc" href="#"><div class="flex items-center gap-space-sm overflow-hidden"><span class="material-symbols-outlined text-[15px] text-outline">folder</span><span class="font-code-sm text-code-sm truncate">billing-svc</span></div><span class="font-label-sm text-label-sm px-1 rounded bg-surface-container text-outline">1 stage</span></a><a class="flex items-center justify-between px-space-sm py-1.5 rounded text-outline hover:bg-surface-container hover:text-on-surface transition-colors mt-space-xs" data-path="add-project" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[15px]">add</span><span class="font-body-sm text-body-sm">Add project</span></div><kbd class="font-code-sm text-code-sm text-outline px-1 rounded bg-surface-container-lowest">⌘O</kbd></a></nav></div></div><div class="p-space-sm bg-surface-container-lowest/60 flex flex-col gap-space-xs"><div class="flex items-center gap-space-xs px-space-sm py-1 text-outline"><span class="material-symbols-outlined text-[14px] text-secondary">lock</span><span class="font-code-sm text-code-sm">Local only (no phone-home)</span></div><nav class="flex flex-col" data-active-classes="bg-surface-container-high text-on-surface font-semibold"><a aria-current="page" class="flex items-center justify-between px-space-sm py-1.5 rounded transition-colors bg-surface-container-high text-on-surface font-semibold" data-path="settings" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[16px]">settings</span><span class="font-body-sm text-body-sm">Settings</span></div><kbd class="font-code-sm text-code-sm text-outline px-1 rounded bg-surface-container-lowest">⌘,</kbd></a></nav></div></aside><div class="pl-64"><header class="fixed top-0 left-64 right-0 h-12 bg-surface-container-low/90 backdrop-blur-md shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 flex items-center justify-between px-space-md"><div class="flex items-center gap-space-md"><img alt="cw-trace logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1VKeu1zY7JpLJ8TmIvfjHURo8_owmnYSW9o_1T2X0G4_oBh4N7w9su6HwtgIiH9g_MBmrnijhDiorVZ8CiXUKSLA7rIUJ-ZGwLyx6jDfYbuuC7hfdiy2_5Xg2QPXXT_xYZXhaM2aDNn7rU7n6SLzUl6fPI7zafp0uF8jTkj31lfIPclG5wBtXQMHzOHT24CL6wdWn152TQu0LwfLMpN6srO7Q4Z3XofFRLs3Ya24vDi6jLl5zYweTMaKg0G"/><nav class="flex items-center gap-space-md" data-active-classes="text-on-surface font-semibold"><a class="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors" data-path="dashboard" href="#">Console</a><a class="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors" data-path="live-tail" href="#">Live Tail</a><a class="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors" data-path="trace-graph" href="#">X-Ray Spans</a><a class="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors" data-path="insights" href="#">Insights</a></nav></div><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs px-space-sm py-1 rounded bg-surface-container font-code-sm text-code-sm text-outline"><span class="material-symbols-outlined text-[14px]">terminal</span><span>localhost:4318</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></header><main class="relative pt-12 min-h-screen bg-surface-container-lowest w-full px-8"><div class="flex flex-col w-full pb-16">
+<!-- Top Title / Action Header -->
+<div class="flex items-end justify-between py-space-xl">
+<div>
+<div class="flex items-center gap-space-xs text-outline font-label-sm uppercase tracking-wider mb-1">
+<span>Preferences</span>
+<span>/</span>
+<span class="text-primary font-code-sm">runtime-config.json</span>
+</div>
+<h1 class="font-headline-xl text-headline-xl text-on-surface tracking-tight">System Settings &amp; Visual Design System</h1>
+</div>
+<div class="flex items-center gap-space-sm">
+<div class="flex items-center gap-space-xs px-space-sm py-1 rounded bg-surface-container font-code-sm text-code-sm text-outline">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+<span>Local state synced</span>
+</div>
+<button class="px-space-md py-1.5 rounded bg-primary-container text-on-primary-container font-code-sm font-semibold hover:bg-primary transition-colors flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-[15px]">save</span>
+<span>Export Config</span>
+</button>
+</div>
+</div>
+<!-- Bento Grid Main Config Layout -->
+<div class="grid grid-cols-12 gap-gutter-lg items-start">
+<!-- Left Sticky Vertical Navigation / Tab Pills -->
+<div class="col-span-3 sticky top-16 space-y-space-md">
+<div class="p-space-sm rounded-xl bg-surface-container-low flex flex-col gap-1 shadow-sm">
+<a class="flex items-center justify-between px-space-md py-2 rounded-lg bg-surface-container-high text-on-surface font-body-sm transition-all" href="#sec-aws">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[16px] text-primary">cloud_sync</span>
+<span>AWS Configuration</span>
+</div>
+<span class="font-code-sm text-[10px] text-outline">01</span>
+</a>
+<a class="flex items-center justify-between px-space-md py-2 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-body-sm transition-all" href="#sec-tail">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[16px]">tune</span>
+<span>Live Tail &amp; Engine</span>
+</div>
+<span class="font-code-sm text-[10px] text-outline">02</span>
+</a>
+<a class="flex items-center justify-between px-space-md py-2 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-body-sm transition-all" href="#sec-pinned">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[16px]">push_pin</span>
+<span>Pinned Stages</span>
+</div>
+<span class="font-code-sm text-[10px] text-outline">03</span>
+</a>
+<a class="flex items-center justify-between px-space-md py-2 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-body-sm transition-all" href="#sec-storage">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[16px]">database</span>
+<span>Local Storage &amp; Cache</span>
+</div>
+<span class="font-code-sm text-[10px] text-outline">04</span>
+</a>
+<a class="flex items-center justify-between px-space-md py-2 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-body-sm transition-all" href="#sec-about">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[16px]">info</span>
+<span>About cw-trace</span>
+</div>
+<span class="font-code-sm text-[10px] text-outline">05</span>
+</a>
+<a class="flex items-center justify-between px-space-md py-2 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-body-sm transition-all" href="#sec-inventory">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[16px] text-secondary">token</span>
+<span>Component Inventory</span>
+</div>
+<span class="font-code-sm text-[10px] text-secondary">§8</span>
+</a>
+</div>
+<!-- Quick Metrics Telemetry Card -->
+<div class="p-space-md rounded-xl bg-surface-container-low shadow-sm flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline">Local Daemon</span>
+<span class="font-code-sm text-[10px] text-secondary px-1.5 py-0.5 rounded bg-surface-container">UPTIME 14m</span>
+</div>
+<div class="flex items-baseline gap-2">
+<span class="font-code-lg text-headline-lg font-semibold text-on-surface">1,482</span>
+<span class="font-body-sm text-body-sm text-outline">spans cached</span>
+</div>
+<!-- Micro sparkline visualization -->
+<div class="h-8 w-full flex items-end gap-1 pt-2">
+<span class="w-full bg-surface-container rounded-t h-[30%]"></span>
+<span class="w-full bg-surface-container rounded-t h-[45%]"></span>
+<span class="w-full bg-surface-container rounded-t h-[20%]"></span>
+<span class="w-full bg-surface-container rounded-t h-[60%]"></span>
+<span class="w-full bg-surface-container rounded-t h-[80%]"></span>
+<span class="w-full bg-surface-container rounded-t h-[40%]"></span>
+<span class="w-full bg-primary/40 rounded-t h-[70%]"></span>
+<span class="w-full bg-primary rounded-t h-[95%]"></span>
+</div>
+</div>
+</div>
+<!-- Main Settings Panel Sections -->
+<div class="col-span-9 space-y-space-xl">
+<!-- Section 1: AWS Configuration -->
+<section class="p-space-lg rounded-xl bg-surface-container-low shadow-sm flex flex-col gap-space-md" id="sec-aws">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary text-[20px]">cloud_sync</span>
+<h2 class="font-headline-md text-headline-md text-on-surface">AWS Local Provider &amp; Credentials</h2>
+</div>
+<span class="font-code-sm text-code-sm text-outline">~/.aws/config</span>
+</div>
+<div class="grid grid-cols-2 gap-space-md">
+<!-- Default Profile -->
+<div class="flex flex-col gap-1.5">
+<label class="font-label-md text-label-md text-on-surface-variant">Default AWS Profile</label>
+<div class="relative">
+<select class="w-full bg-surface-container text-on-surface font-code-sm text-code-sm rounded-lg px-space-md py-2.5 appearance-none focus:outline-none focus:bg-surface-container-high transition-colors cursor-pointer">
+<option selected="" value="dev-sso">dev-sso (IdentityCenter: 849204128912)</option>
+<option value="prod-admin">prod-admin (MFA: arn:aws:iam::0912384102:role/Engineers)</option>
+<option value="staging">staging (Direct STS: staging-us-east-1)</option>
+<option value="sandbox-personal">sandbox-personal (default)</option>
+</select>
+<span class="material-symbols-outlined text-[16px] text-outline absolute right-3 top-3 pointer-events-none">expand_more</span>
+</div>
+<span class="font-body-sm text-[11px] text-outline">Detected 4 profiles across local config files</span>
+</div>
+<!-- Default Region -->
+<div class="flex flex-col gap-1.5">
+<label class="font-label-md text-label-md text-on-surface-variant">Default Discovery Region</label>
+<div class="relative">
+<select class="w-full bg-surface-container text-on-surface font-code-sm text-code-sm rounded-lg px-space-md py-2.5 appearance-none focus:outline-none focus:bg-surface-container-high transition-colors cursor-pointer">
+<option selected="" value="us-east-1">us-east-1 (N. Virginia)</option>
+<option value="us-west-2">us-west-2 (Oregon)</option>
+<option value="eu-west-1">eu-west-1 (Ireland)</option>
+<option value="eu-central-1">eu-central-1 (Frankfurt)</option>
+<option value="ap-northeast-1">ap-northeast-1 (Tokyo)</option>
+</select>
+<span class="material-symbols-outlined text-[16px] text-outline absolute right-3 top-3 pointer-events-none">expand_more</span>
+</div>
+<span class="font-body-sm text-[11px] text-outline">CloudFormation stacks query this region during bootstrap</span>
+</div>
+</div>
+<!-- SSO Session Helper Card -->
+<div class="p-space-md rounded-lg bg-surface-container flex items-start gap-space-md">
+<div class="w-8 h-8 rounded-full bg-secondary-container/20 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-secondary text-[18px]">verified_user</span>
+</div>
+<div class="flex flex-col gap-0.5">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-md text-body-md font-semibold text-on-surface">AWS SSO Integration Active</span>
+<span class="font-label-sm text-[9px] uppercase px-1.5 py-0.5 rounded bg-surface-container-high text-secondary">Zero-exfiltration</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+              AWS SSO integration uses local credential cache (<code class="font-code-sm text-on-surface px-1 py-0.5 rounded bg-surface-container-lowest">~/.aws/sso/cache</code>). No credentials or access tokens ever leave this machine or get sent over external networks.
+            </p>
+</div>
+</div>
+</section>
+<!-- Section 2: Live Tail & Polling Defaults -->
+<section class="p-space-lg rounded-xl bg-surface-container-low shadow-sm flex flex-col gap-space-md" id="sec-tail">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary text-[20px]">tune</span>
+<h2 class="font-headline-md text-headline-md text-on-surface">Live Tail &amp; Virtualization Buffer</h2>
+</div>
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">ENGINE CONFIG</span>
+</div>
+<div class="grid grid-cols-2 gap-space-lg">
+<!-- Polling Slider -->
+<div class="p-space-md rounded-lg bg-surface-container flex flex-col justify-between gap-space-sm">
+<div>
+<div class="flex items-center justify-between mb-1">
+<span class="font-headline-md text-body-md text-on-surface">Polling Interval</span>
+<span class="font-code-sm text-code-sm text-primary font-semibold px-2 py-0.5 rounded bg-surface-container-high" id="interval-display">2000 ms</span>
+</div>
+<p class="font-body-sm text-body-sm text-outline">Frequency of FilterLogEvents requests when stream is active.</p>
+</div>
+<div class="flex flex-col gap-2 pt-2">
+<input class="w-full accent-primary bg-surface-container-lowest rounded-lg cursor-pointer h-1.5" id="interval-slider" max="5000" min="1000" step="250" type="range" value="2000"/>
+<div class="flex justify-between font-code-sm text-[10px] text-outline">
+<span>1000ms (Turbulent)</span>
+<span>2000ms (Default)</span>
+<span>5000ms (Conserve quota)</span>
+</div>
+</div>
+</div>
+<!-- Buffer Limit Pill Selection -->
+<div class="p-space-md rounded-lg bg-surface-container flex flex-col justify-between gap-space-sm">
+<div>
+<div class="flex items-center justify-between mb-1">
+<span class="font-headline-md text-body-md text-on-surface">Log Buffer Limit</span>
+<span class="font-code-sm text-code-sm text-secondary font-semibold">50,000 rows</span>
+</div>
+<p class="font-body-sm text-body-sm text-outline">Maximum virtualized list entries retained in fast memory.</p>
+</div>
+<div class="grid grid-cols-3 gap-space-xs pt-2">
+<button class="py-1.5 rounded bg-surface-container-high text-outline hover:text-on-surface font-code-sm text-code-sm transition-colors text-center">
+                10k
+              </button>
+<button class="py-1.5 rounded bg-primary-container text-on-primary-container font-code-sm text-code-sm font-semibold text-center shadow-sm">
+                50k
+              </button>
+<button class="py-1.5 rounded bg-surface-container-high text-outline hover:text-on-surface font-code-sm text-code-sm transition-colors text-center">
+                100k
+              </button>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 3: Pinned Stages Manager -->
+<section class="p-space-lg rounded-xl bg-surface-container-low shadow-sm flex flex-col gap-space-md" id="sec-pinned">
+<div class="flex items-center justify-between">
+<div>
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary text-[20px]">push_pin</span>
+<h2 class="font-headline-md text-headline-md text-on-surface">Pinned Stages Manager</h2>
+</div>
+<p class="font-body-sm text-body-sm text-outline mt-0.5">Quick access shortcuts assigned to hotkeys in sidebar</p>
+</div>
+<span class="font-code-sm text-code-sm text-outline">3 of 9 slots used</span>
+</div>
+<div class="flex flex-col gap-1.5" id="pin-list-container">
+<!-- Pin 1 -->
+<div class="flex items-center justify-between p-space-sm rounded-lg bg-surface-container hover:bg-surface-container-high transition-colors group">
+<div class="flex items-center gap-space-md">
+<span class="material-symbols-outlined text-[16px] text-outline cursor-grab">drag_indicator</span>
+<kbd class="font-code-sm text-code-sm px-1.5 py-0.5 rounded bg-surface-container-lowest text-on-surface">⌘2</kbd>
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-[#34D399]"></span>
+<span class="font-code-md text-code-md font-medium text-on-surface">dev — orders-svc</span>
+<span class="font-code-sm text-[11px] text-outline px-1.5 py-0.5 rounded bg-surface-container-lowest">profile: dev-sso</span>
+</div>
+</div>
+<div class="flex items-center gap-space-sm">
+<span class="font-label-sm text-[10px] text-outline group-hover:text-on-surface-variant transition-colors">us-east-1</span>
+<button class="px-space-sm py-1 rounded hover:bg-surface-container-lowest text-outline hover:text-error transition-colors font-body-sm text-body-sm flex items-center gap-1" onclick="this.closest('.group').remove()">
+<span class="material-symbols-outlined text-[14px]">close</span>
+<span>Unpin</span>
+</button>
+</div>
+</div>
+<!-- Pin 2 -->
+<div class="flex items-center justify-between p-space-sm rounded-lg bg-surface-container hover:bg-surface-container-high transition-colors group">
+<div class="flex items-center gap-space-md">
+<span class="material-symbols-outlined text-[16px] text-outline cursor-grab">drag_indicator</span>
+<kbd class="font-code-sm text-code-sm px-1.5 py-0.5 rounded bg-surface-container-lowest text-on-surface">⌘3</kbd>
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-[#34D399]"></span>
+<span class="font-code-md text-code-md font-medium text-on-surface">prod — orders-svc</span>
+<span class="font-code-sm text-[11px] text-outline px-1.5 py-0.5 rounded bg-surface-container-lowest">profile: prod-admin</span>
+</div>
+</div>
+<div class="flex items-center gap-space-sm">
+<span class="font-label-sm text-[10px] text-outline group-hover:text-on-surface-variant transition-colors">us-east-1</span>
+<button class="px-space-sm py-1 rounded hover:bg-surface-container-lowest text-outline hover:text-error transition-colors font-body-sm text-body-sm flex items-center gap-1" onclick="this.closest('.group').remove()">
+<span class="material-symbols-outlined text-[14px]">close</span>
+<span>Unpin</span>
+</button>
+</div>
+</div>
+<!-- Pin 3 -->
+<div class="flex items-center justify-between p-space-sm rounded-lg bg-surface-container hover:bg-surface-container-high transition-colors group">
+<div class="flex items-center gap-space-md">
+<span class="material-symbols-outlined text-[16px] text-outline cursor-grab">drag_indicator</span>
+<kbd class="font-code-sm text-code-sm px-1.5 py-0.5 rounded bg-surface-container-lowest text-on-surface">⌘4</kbd>
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-error"></span>
+<span class="font-code-md text-code-md font-medium text-on-surface">staging — billing-svc</span>
+<span class="font-code-sm text-[11px] text-outline px-1.5 py-0.5 rounded bg-surface-container-lowest">profile: staging</span>
+</div>
+</div>
+<div class="flex items-center gap-space-sm">
+<span class="font-label-sm text-[10px] text-outline group-hover:text-on-surface-variant transition-colors">eu-west-1</span>
+<button class="px-space-sm py-1 rounded hover:bg-surface-container-lowest text-outline hover:text-error transition-colors font-body-sm text-body-sm flex items-center gap-1" onclick="this.closest('.group').remove()">
+<span class="material-symbols-outlined text-[14px]">close</span>
+<span>Unpin</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 4: Appearance & Local Storage -->
+<section class="p-space-lg rounded-xl bg-surface-container-low shadow-sm flex flex-col gap-space-md" id="sec-storage">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary text-[20px]">palette</span>
+<h2 class="font-headline-md text-headline-md text-on-surface">Appearance &amp; Local Persistence</h2>
+</div>
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">OFFLINE ENGINE</span>
+</div>
+<div class="grid grid-cols-2 gap-space-md">
+<!-- Theme Card -->
+<div class="p-space-md rounded-lg bg-surface-container flex flex-col justify-between">
+<div>
+<span class="font-label-md text-label-md text-outline block mb-1">COLOR THEME</span>
+<span class="font-headline-md text-body-md text-on-surface">Dark Console</span>
+<p class="font-body-sm text-body-sm text-outline mt-1">High-contrast, terminal-adjacent dark tone locked for deterministic log parsing.</p>
+</div>
+<div class="pt-space-md flex items-center gap-2">
+<span class="px-space-sm py-1 rounded bg-surface-container-high text-primary font-code-sm text-code-sm">System default</span>
+<span class="font-body-sm text-[11px] text-outline">(Locked in v0.9)</span>
+</div>
+</div>
+<!-- Storage Footprint Card -->
+<div class="p-space-md rounded-lg bg-surface-container flex flex-col justify-between">
+<div>
+<span class="font-label-md text-label-md text-outline block mb-1">LOCAL DISK FOOTPRINT</span>
+<div class="flex items-baseline gap-2">
+<span class="font-code-lg text-headline-lg font-semibold text-on-surface">4.2 MB</span>
+<span class="font-body-sm text-body-sm text-outline">SQLite trace DB</span>
+</div>
+<p class="font-code-sm text-[11px] text-outline mt-1 truncate">~/Library/Application Support/cw-trace/traces.db</p>
+</div>
+<div class="pt-space-md flex items-center justify-between">
+<button class="px-space-md py-1.5 rounded bg-error-container text-on-error-container hover:bg-error hover:text-on-error font-code-sm text-code-sm font-semibold transition-colors flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-[15px]">delete_sweep</span>
+<span>Clear Local Cache</span>
+</button>
+<span class="font-body-sm text-[11px] text-outline">Preserves pins</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 5: About cw-trace -->
+<section class="p-space-lg rounded-xl bg-surface-container-low shadow-sm flex flex-col gap-space-md" id="sec-about">
+<div class="flex items-start justify-between">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-space-sm">
+<span class="font-headline-lg text-headline-lg font-semibold text-on-surface">cw-trace</span>
+<span class="font-code-sm text-code-sm text-primary px-2 py-0.5 rounded bg-surface-container font-semibold">v0.9.4-m3</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-xl">
+              Local, read-only debugger for CDK-deployed services. Never modifies AWS, never phones home, no accounts.
+            </p>
+</div>
+<div class="flex items-center gap-space-sm">
+<a class="px-space-md py-1.5 rounded bg-surface-container text-on-surface hover:bg-surface-container-high transition-colors font-code-sm text-code-sm flex items-center gap-1" href="https://github.com" target="_blank">
+<span class="material-symbols-outlined text-[16px]">code</span>
+<span>GitHub</span>
+</a>
+<a class="px-space-md py-1.5 rounded bg-surface-container text-on-surface hover:bg-surface-container-high transition-colors font-code-sm text-code-sm flex items-center gap-1" href="#">
+<span class="material-symbols-outlined text-[16px]">article</span>
+<span>Docs</span>
+</a>
+</div>
+</div>
+<div class="grid grid-cols-3 gap-space-md pt-space-xs text-outline font-code-sm text-[11px]">
+<div>Commit: <span class="text-on-surface">b29af18</span></div>
+<div>Runtime: <span class="text-on-surface">Tauri 2.0 / Rust Core</span></div>
+<div>Telemetry Engine: <span class="text-on-surface">Embedded OTLP 1.3</span></div>
+</div>
+</section>
+<!-- Section 6: Comprehensive Component Inventory (§8) -->
+<section class="p-space-lg rounded-xl bg-surface-container-low shadow-sm flex flex-col gap-space-xl" id="sec-inventory">
+<div class="flex items-center justify-between">
+<div>
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-secondary text-[22px]">widgets</span>
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Component Inventory Showcase</h2>
+</div>
+<p class="font-body-sm text-body-sm text-outline">Reference implementations conforming strictly to Brand &amp; Style PRD §8</p>
+</div>
+<span class="font-label-sm text-label-sm text-secondary uppercase px-2 py-1 rounded bg-secondary-container/20">Design System Spec</span>
+</div>
+<!-- 1. Status Dots & ERROR Badges -->
+<div class="flex flex-col gap-space-sm">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline">1. Status Dots &amp; Monospace Badges</span>
+<div class="p-space-md rounded-lg bg-surface-container flex flex-wrap items-center gap-space-md">
+<!-- Active / Nominal -->
+<div class="flex items-center gap-2 px-space-sm py-1 rounded bg-surface-container-lowest">
+<span class="w-2 h-2 rounded-full bg-[#34D399]"></span>
+<span class="font-code-sm text-code-sm text-[#34D399]">200 OK</span>
+</div>
+<!-- Redirect -->
+<div class="flex items-center gap-2 px-space-sm py-1 rounded bg-surface-container-lowest">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="font-code-sm text-code-sm text-secondary">304 Cached</span>
+</div>
+<!-- Coldstart -->
+<div class="flex items-center gap-2 px-space-sm py-1 rounded bg-surface-container-lowest">
+<span class="material-symbols-outlined text-[13px] text-secondary">ac_unit</span>
+<span class="font-code-sm text-code-sm text-secondary">Cold Start 482ms</span>
+</div>
+<!-- Latency bottleneck -->
+<div class="flex items-center gap-2 px-space-sm py-1 rounded bg-surface-container-lowest">
+<span class="w-2 h-2 rounded-full bg-primary-container"></span>
+<span class="font-code-sm text-code-sm text-primary">Bottleneck 1.2s</span>
+</div>
+<!-- ERROR Badges -->
+<div class="flex items-center gap-1.5 px-2 py-0.5 rounded bg-error-container text-on-error-container font-code-sm text-code-sm font-semibold">
+<span class="material-symbols-outlined text-[13px]">error</span>
+<span>ERROR 502</span>
+</div>
+<div class="flex items-center gap-1.5 px-2 py-0.5 rounded bg-error/20 text-error font-code-sm text-code-sm">
+<span>Lambda.Timeout (Task timed out after 30.00 seconds)</span>
+</div>
+</div>
+</div>
+<!-- 2. Clickable Trace Pills & Waterfall Ranges -->
+<div class="flex flex-col gap-space-sm">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline">2. Interactive Trace Pills &amp; Waterfall Bars</span>
+<div class="p-space-md rounded-lg bg-surface-container flex flex-col gap-space-sm">
+<div class="flex flex-wrap items-center gap-space-sm">
+<button class="flex items-center gap-2 px-2.5 py-1 rounded bg-surface-container-high hover:bg-surface-container-highest text-on-surface font-code-sm text-code-sm transition-colors group">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>
+<span>DynamoDB::GetItem</span>
+<span class="text-outline group-hover:text-tertiary">14ms</span>
+<span class="material-symbols-outlined text-[12px] text-outline">arrow_forward</span>
+</button>
+<button class="flex items-center gap-2 px-2.5 py-1 rounded bg-surface-container-high hover:bg-surface-container-highest text-on-surface font-code-sm text-code-sm transition-colors group">
+<span class="w-2 h-2 rounded-full bg-primary-container"></span>
+<span>SQS::SendMessage</span>
+<span class="text-outline group-hover:text-primary">28ms</span>
+<span class="material-symbols-outlined text-[12px] text-outline">arrow_forward</span>
+</button>
+<button class="flex items-center gap-2 px-2.5 py-1 rounded bg-surface-container-high hover:bg-surface-container-highest text-on-surface font-code-sm text-code-sm transition-colors group">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span>S3::PutObject</span>
+<span class="text-outline group-hover:text-secondary">89ms</span>
+<span class="material-symbols-outlined text-[12px] text-outline">arrow_forward</span>
+</button>
+<button class="flex items-center gap-2 px-2.5 py-1 rounded bg-error-container/30 hover:bg-error-container/50 text-error font-code-sm text-code-sm transition-colors group">
+<span class="w-2 h-2 rounded-full bg-error"></span>
+<span>Stripe::ChargesCreate</span>
+<span class="text-error font-semibold">FAIL 401</span>
+<span class="material-symbols-outlined text-[12px] text-error">arrow_forward</span>
+</button>
+</div>
+<!-- Mini Trace Waterfall Mockup -->
+<div class="mt-2 p-space-sm rounded bg-surface-container-lowest flex flex-col gap-2">
+<div class="flex items-center justify-between text-outline font-code-sm text-[11px]">
+<span>Root Span: POST /v1/checkout</span>
+<span>Total 241ms</span>
+</div>
+<div class="h-1.5 w-full bg-surface-container rounded-full overflow-hidden flex">
+<div class="h-full bg-secondary" style="width: 15%"></div>
+<div class="h-full bg-tertiary" style="width: 25%"></div>
+<div class="h-full bg-primary-container" style="width: 45%"></div>
+<div class="h-full bg-[#34D399]" style="width: 15%"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- 3. Inline System Banners -->
+<div class="flex flex-col gap-space-sm">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline">3. Inline Diagnostic Banners</span>
+<div class="flex flex-col gap-space-sm">
+<!-- Banner: Stale cdk.out -->
+<div class="p-space-md rounded-lg bg-surface-container-high flex items-center justify-between">
+<div class="flex items-center gap-space-md">
+<div class="w-7 h-7 rounded bg-primary-container/20 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[16px]">sync_problem</span>
+</div>
+<div>
+<div class="font-headline-md text-body-md text-on-surface font-semibold">Stale cdk.out Synthesis Detected</div>
+<div class="font-body-sm text-body-sm text-outline">Synthesized 42 minutes ago. CloudFormation drift may cause ghost telemetry.</div>
+</div>
+</div>
+<button class="px-space-md py-1 rounded bg-surface-container text-on-surface hover:bg-surface-container-highest transition-colors font-code-sm text-code-sm">
+                cdk synth --quiet
+              </button>
+</div>
+<!-- Banner: SSO Expired -->
+<div class="p-space-md rounded-lg bg-error-container/25 flex items-center justify-between">
+<div class="flex items-center gap-space-md">
+<div class="w-7 h-7 rounded bg-error-container flex items-center justify-center text-on-error-container">
+<span class="material-symbols-outlined text-[16px]">key_off</span>
+</div>
+<div>
+<div class="font-headline-md text-body-md text-error font-semibold">SSO Session Token Expired</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Access token for profile <span class="font-code-sm text-on-surface">dev-sso</span> has lapsed. CloudWatch live-tail queries halted.</div>
+</div>
+</div>
+<button class="px-space-md py-1 rounded bg-error text-on-error font-code-sm text-code-sm font-semibold hover:opacity-90 transition-opacity shadow-sm">
+                aws sso login
+              </button>
+</div>
+<!-- Banner: Missing CloudWatch Groups -->
+<div class="p-space-md rounded-lg bg-surface-container-high flex items-center justify-between">
+<div class="flex items-center gap-space-md">
+<div class="w-7 h-7 rounded bg-secondary-container/20 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[16px]">cloud_off</span>
+</div>
+<div>
+<div class="font-headline-md text-body-md text-on-surface font-semibold">2 Log Groups Missing in CloudWatch</div>
+<div class="font-body-sm text-body-sm text-outline">Expected /aws/lambda/PaymentWorker and /aws/lambda/WebhookIngest were not discovered in us-east-1.</div>
+</div>
+</div>
+<button class="px-space-md py-1 rounded bg-surface-container text-on-surface hover:bg-surface-container-highest transition-colors font-code-sm text-code-sm">
+                Ignore Filter
+              </button>
+</div>
+</div>
+</div>
+<!-- 4. Ghost & Accent Buttons -->
+<div class="flex flex-col gap-space-sm">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline">4. Button Scale &amp; Elevation Matrix</span>
+<div class="p-space-md rounded-lg bg-surface-container flex flex-wrap items-center gap-space-md">
+<!-- Accent Primary -->
+<button class="px-space-lg py-2 rounded bg-primary-container text-on-primary-container font-headline-md text-body-md font-semibold hover:bg-primary transition-colors shadow-sm">
+              Primary Action
+            </button>
+<!-- Secondary Solid -->
+<button class="px-space-lg py-2 rounded bg-surface-container-high text-on-surface font-headline-md text-body-md hover:bg-surface-container-highest transition-colors">
+              Secondary Surface
+            </button>
+<!-- Ghost / Terminal Action -->
+<button class="px-space-lg py-2 rounded text-outline hover:text-on-surface hover:bg-surface-container-high font-code-sm text-code-sm transition-colors flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[15px]">terminal</span>
+<span>Ghost CLI</span>
+</button>
+<!-- Danger Action -->
+<button class="px-space-lg py-2 rounded bg-error-container text-on-error-container hover:bg-error hover:text-on-error font-headline-md text-body-md transition-colors">
+              Danger Purge
+            </button>
+<!-- Micro dense button -->
+<button class="px-space-sm py-1 rounded bg-surface-container-lowest text-on-surface font-code-sm text-code-sm hover:bg-surface-container-high transition-colors flex items-center gap-1">
+<kbd class="text-[9px] text-outline">ESC</kbd>
+<span>Cancel</span>
+</button>
+</div>
+</div>
+</section>
+</div>
+</div>
+</div>
+<script>
+  // Micro-interaction for the live tail polling slider
+  const slider = document.getElementById('interval-slider');
+  const display = document.getElementById('interval-display');
+  if (slider && display) {
+    slider.addEventListener('input', (e) => {
+      display.textContent = `${e.target.value} ms`;
+    });
+  }
+</script></main></div></body></html>

@@ -42,6 +42,18 @@
             "type": "aws:cdk:logicalId",
             "data": "ProcessOrdersC9D0E1F2"
           }
+        ],
+        "/SampleStack/OrdersTable/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "OrdersTableF1A2B3C4"
+          }
+        ],
+        "/SampleStack/OrdersQueue/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "OrdersQueueD5E6F7A8"
+          }
         ]
       }
     },

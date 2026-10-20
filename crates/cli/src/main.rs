@@ -66,6 +66,9 @@ enum Command {
         /// Keep polling for new events.
         #[arg(short = 'f', long)]
         follow: bool,
+        /// Stream live via StartLiveTail (implies --follow; falls back to polling).
+        #[arg(long)]
+        live: bool,
         /// Poll interval in seconds for `--follow` (default 2).
         #[arg(long, default_value_t = 2)]
         interval: u64,
@@ -145,6 +148,7 @@ async fn main() -> anyhow::Result<()> {
             end,
             limit,
             follow,
+            live,
             interval,
             insights,
             verify,
@@ -163,6 +167,7 @@ async fn main() -> anyhow::Result<()> {
                     end,
                     limit,
                     follow,
+                    live,
                     interval,
                     insights,
                     verify,
@@ -218,10 +223,11 @@ fn run_graph(
     let graph = cdk_graph::ResourceGraph::from_cdk_out(&outdir)
         .with_context(|| format!("failed to build resource graph from {}", outdir.display()))?;
     if json {
-        println!("{}", serde_json::to_string_pretty(graph.nodes())?);
+        println!("{}", serde_json::to_string_pretty(&graph)?);
     } else {
         println!("# cdk.out: {}", outdir.display());
         println!("# resources: {}", graph.len());
+        println!("# edges: {}", graph.edges().len());
         for node in graph.nodes() {
             let (group, confidence) = match (&node.log_group, &node.confidence) {
                 (Some(g), Some(c)) => {
@@ -238,6 +244,12 @@ fn run_graph(
                 "{}\n  type: {}\n  logs: {}{}",
                 node.construct_path, node.cfn_type, group, confidence
             );
+        }
+        if !graph.edges().is_empty() {
+            println!("# dependency edges");
+            for e in graph.edges() {
+                println!("  {} -> {} ({})", e.from, e.to, e.via);
+            }
         }
     }
     Ok(())
@@ -290,6 +302,7 @@ struct LogsArgs {
     end: Option<String>,
     limit: i32,
     follow: bool,
+    live: bool,
     interval: u64,
     insights: Option<String>,
     verify: bool,
@@ -402,6 +415,9 @@ async fn run_logs(
     )
     .map_err(|e| anyhow::anyhow!("{e}"))?;
 
+    if let Some(p) = profile {
+        aws_obs::validate_profile(p).map_err(|e| anyhow::anyhow!("{e}"))?;
+    }
     let sdk = aws_obs::load_sdk_config(&aws_obs::AwsOptions::new(
         profile.clone(),
         region.clone(),
@@ -463,8 +479,37 @@ async fn run_logs(
         }
     }
 
-    let mut next_token: Option<String> = None;
+    // Live path: true streaming via StartLiveTail (Ctrl-C to stop).
+    if args.live {
+        if !args.json {
+            println!("# live: StartLiveTail (Ctrl-C to stop)");
+        }
+        let call = aws_obs::live_tail_stream(&logs, &groups, args.filter.as_deref(), |events| {
+            if args.json {
+                let batch: Vec<LogJsonLine> = events.iter().map(to_json_line).collect();
+                if let Ok(line) = serde_json::to_string(&batch) {
+                    println!("{line}");
+                }
+            } else {
+                for e in &events {
+                    print_log_human(e);
+                }
+            }
+        });
+        tokio::select! {
+            res = call => {
+                if let Err(e) = res {
+                    anyhow::bail!("live tail failed: {e} (retry without --live for polling)");
+                }
+            }
+            _ = tokio::signal::ctrl_c() => {}
+        }
+        return Ok(());
+    }
+
+    let mut cursor: Option<aws_obs::LogsCursor> = None;
     let mut last_ts = start_ms;
+    let mut total = 0usize;
     // JSON mode buffers one array; human mode streams lines.
     let mut json_out: Vec<LogJsonLine> = Vec::new();
     loop {
@@ -476,8 +521,8 @@ async fn run_logs(
                 end_ms: if args.follow { None } else { end_ms },
                 filter_pattern: args.filter.clone(),
                 limit: Some(limit),
-                next_token: next_token.clone(),
             },
+            cursor.as_ref(),
         )
         .await
         .map_err(|e| anyhow::anyhow!("{e}"))?;
@@ -489,18 +534,18 @@ async fn run_logs(
             }
             last_ts = Some(last_ts.map_or(e.timestamp_ms, |t| t.max(e.timestamp_ms)));
         }
-        next_token = page.next_token.clone();
-        let done_paging = next_token.is_none();
+        total += page.events.len();
+        cursor = page.next_cursor;
         if !args.follow {
-            // Single search: follow pagination tokens until exhausted.
-            if done_paging {
+            // Single search: page until the window is drained or --limit hit.
+            if cursor.is_none() || total >= limit as usize {
                 break;
             }
             continue;
         }
         // Follow mode: advance the window past what we printed, then poll.
         start_ms = last_ts.map(|t| t.saturating_add(1));
-        next_token = None;
+        cursor = None;
         if args.json {
             // In follow+JSON mode we flush each batch as its own array so
             // output stays streaming-friendly.
@@ -513,8 +558,6 @@ async fn run_logs(
             _ = tokio::signal::ctrl_c() => break,
             _ = tokio::time::sleep(std::time::Duration::from_secs(args.interval.max(1))) => {}
         }
-        // When following without new events, keep polling with the same window.
-        let _ = done_paging;
     }
     if args.json && !json_out.is_empty() {
         println!("{}", serde_json::to_string_pretty(&json_out)?);
@@ -544,6 +587,9 @@ async fn run_trace(
     region: &Option<String>,
     args: TraceArgs,
 ) -> anyhow::Result<()> {
+    if let Some(p) = profile {
+        aws_obs::validate_profile(p).map_err(|e| anyhow::anyhow!("{e}"))?;
+    }
     let sdk = aws_obs::load_sdk_config(&aws_obs::AwsOptions::new(
         profile.clone(),
         region.clone(),
@@ -599,11 +645,18 @@ async fn run_trace(
             for seg in &trace.segments {
                 let dur = (seg.end_ms - seg.start_ms).max(0) as f64 / 1000.0;
                 println!(
-                    "  {} {} origin:{} {dur:.3}s",
+                    "  {} {} origin:{} {dur:.3}s{}",
                     seg.name,
                     format_ts(seg.start_ms),
                     seg.origin.as_deref().unwrap_or("-"),
+                    seg_flags(seg.error, seg.fault, seg.throttle),
                 );
+                if let Some(cause) = &seg.cause {
+                    println!("    cause: {cause}");
+                }
+                for sub in &seg.subsegments {
+                    print_subsegment_tree(sub, 0);
+                }
             }
             println!(
                 "suggested logs: --start {} --end {}",
@@ -697,4 +750,48 @@ fn trace_window(trace: &aws_obs::XRayTrace) -> (i64, i64) {
         return (now - 60_000, now);
     }
     (start, end)
+}
+
+fn seg_flags(error: bool, fault: bool, throttle: bool) -> String {
+    let mut flags = Vec::new();
+    if fault {
+        flags.push("FAULT");
+    }
+    if error {
+        flags.push("ERROR");
+    }
+    if throttle {
+        flags.push("THROTTLE");
+    }
+    if flags.is_empty() {
+        String::new()
+    } else {
+        format!(" {}", flags.join(" "))
+    }
+}
+
+fn print_subsegment_tree(sub: &aws_obs::XRaySubsegment, depth: usize) {
+    let pad = "  ".repeat(depth + 2);
+    let dur = (sub.end_ms - sub.start_ms).max(0) as f64 / 1000.0;
+    let mut tags = String::new();
+    if let Some(ns) = &sub.namespace {
+        tags.push_str(&format!(" [{ns}]"));
+    }
+    if let Some(op) = &sub.aws_operation {
+        tags.push_str(&format!(" {op}"));
+    }
+    if let Some(status) = sub.http_status {
+        tags.push_str(&format!(" http:{status}"));
+    }
+    println!(
+        "{pad}└─ {}{tags} {dur:.3}s{}",
+        sub.name,
+        seg_flags(sub.error, sub.fault, sub.throttle),
+    );
+    if let Some(cause) = &sub.cause {
+        println!("{pad}     cause: {cause}");
+    }
+    for child in &sub.subsegments {
+        print_subsegment_tree(child, depth + 1);
+    }
 }

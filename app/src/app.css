@@ -1,0 +1,4 @@
+#app {
+  /* Height is zoom-compensated in theme.css; do not set 100vh here. */
+  min-height: 100%;
+}

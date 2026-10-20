@@ -5,7 +5,17 @@
       "Properties": {
         "FunctionName": "sample-create-order",
         "Handler": "index.handler",
-        "Runtime": "nodejs22.x"
+        "Runtime": "nodejs22.x",
+        "Environment": {
+          "Variables": {
+            "TABLE_NAME": {
+              "Ref": "OrdersTableF1A2B3C4"
+            },
+            "QUEUE_URL": {
+              "Fn::GetAtt": ["OrdersQueueD5E6F7A8", "QueueUrl"]
+            }
+          }
+        }
       }
     },
     "CreateOrderLogGroupE9B0C442": {
@@ -60,6 +70,31 @@
             }
           ]
         }
+      }
+    },
+    "OrdersTableF1A2B3C4": {
+      "Type": "AWS::DynamoDB::Table",
+      "Properties": {
+        "TableName": "sample-orders",
+        "BillingMode": "PAY_PER_REQUEST",
+        "AttributeDefinitions": [
+          {
+            "AttributeName": "pk",
+            "AttributeType": "S"
+          }
+        ],
+        "KeySchema": [
+          {
+            "AttributeName": "pk",
+            "KeyType": "HASH"
+          }
+        ]
+      }
+    },
+    "OrdersQueueD5E6F7A8": {
+      "Type": "AWS::SQS::Queue",
+      "Properties": {
+        "QueueName": "sample-orders-queue"
       }
     }
   }

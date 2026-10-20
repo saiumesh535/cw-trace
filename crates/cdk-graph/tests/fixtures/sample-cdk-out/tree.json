@@ -176,6 +176,54 @@
               "fqn": "aws-cdk-lib.aws_stepfunctions.StateMachine",
               "version": "2.100.0"
             }
+          },
+          "OrdersTable": {
+            "id": "OrdersTable",
+            "path": "SampleStack/OrdersTable",
+            "children": {
+              "Resource": {
+                "id": "Resource",
+                "path": "SampleStack/OrdersTable/Resource",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::DynamoDB::Table",
+                  "aws:cdk:cloudformation:props": {
+                    "tableName": "sample-orders"
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_dynamodb.CfnTable",
+                  "version": "2.100.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_dynamodb.Table",
+              "version": "2.100.0"
+            }
+          },
+          "OrdersQueue": {
+            "id": "OrdersQueue",
+            "path": "SampleStack/OrdersQueue",
+            "children": {
+              "Resource": {
+                "id": "Resource",
+                "path": "SampleStack/OrdersQueue/Resource",
+                "attributes": {
+                  "aws:cdk:cloudformation:type": "AWS::SQS::Queue",
+                  "aws:cdk:cloudformation:props": {
+                    "queueName": "sample-orders-queue"
+                  }
+                },
+                "constructInfo": {
+                  "fqn": "aws-cdk-lib.aws_sqs.CfnQueue",
+                  "version": "2.100.0"
+                }
+              }
+            },
+            "constructInfo": {
+              "fqn": "aws-cdk-lib.aws_sqs.Queue",
+              "version": "2.100.0"
+            }
           }
         }
       }
