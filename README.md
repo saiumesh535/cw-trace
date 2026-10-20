@@ -12,9 +12,9 @@ M3 feature-complete. CLI (`graph`, `logs`, `trace`, `--live`) and the Tauri 2
 + Svelte 5 desktop app both run over the same core: construct tree, cursor-
 paginated log search, StartLiveTail streaming (polling fallback), nested
 X-Ray waterfall with segment→construct jumps, error triage, deep links
-(`cw-trace://`), and a session region override. Bundles are built from
-`.github/workflows/release.yml` on `v*` tags; see `docs/IAM.md` for the
-minimal read-only policy.
+(`cw-trace://`), and a session region override. Bundles publish to a GitHub Release via `.github/workflows/release.yml` on
+`v*` tags (`git tag v0.1.0 && git push origin v0.1.0`) or a manual Actions
+run; see `docs/IAM.md` for the minimal read-only policy.
 
 ## Layout
 

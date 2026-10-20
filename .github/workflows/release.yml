@@ -1,8 +1,18 @@
 name: Release
 
+# Push a version tag to build installers and publish a GitHub Release:
+#   git tag v0.1.0 && git push origin v0.1.0
+# Or run this workflow manually (Actions → Release → Run workflow) with an
+# existing or new tag name.
 on:
   push:
     tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag (e.g. v0.1.0). Created on HEAD if missing."
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -11,8 +21,41 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
+  prepare:
+    name: prepare tag
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: tag
+        env:
+          TAG: ${{ inputs.tag }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [[ ! "$TAG" =~ ^v[0-9] ]]; then
+            echo "Tag must look like v0.1.0 (got: $TAG)" >&2
+            exit 1
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "Tag $TAG already exists"
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git tag "$TAG"
+            git push origin "$TAG"
+            echo "Created and pushed $TAG"
+          fi
+
   bundle:
     name: bundle (${{ matrix.platform }})
+    needs: [prepare]
+    # Tag-push path skips prepare; manual path waits for it.
+    if: always() && (needs.prepare.result == 'success' || needs.prepare.result == 'skipped')
     strategy:
       fail-fast: false
       matrix:
@@ -28,6 +71,8 @@ jobs:
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin' || matrix.platform == 'macos-13' && 'x86_64-apple-darwin' || '' }}
@@ -57,8 +102,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           projectPath: app
-          tagName: ${{ github.ref_name }}
-          releaseName: "cw-trace ${{ github.ref_name }}"
-          releaseDraft: true
+          tagName: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+          releaseName: "cw-trace ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}"
+          releaseDraft: false
           prerelease: false
+          generateReleaseNotes: true
+          includeUpdaterJson: false
           args: ${{ matrix.args }}

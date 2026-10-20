@@ -78,7 +78,9 @@ app/
 - Session region override for multi-region stacks (stage region untouched).
 
 Read-only against AWS — see [`docs/IAM.md`](../docs/IAM.md) for the minimal
-policy. Bundles are produced by `.github/workflows/release.yml` on `v*` tags
-(draft GitHub release); updater artifacts stay disabled
+policy. Bundles are published to a GitHub Release by
+[`.github/workflows/release.yml`](../.github/workflows/release.yml) when you
+push a `v*` tag (`git tag v0.1.0 && git push origin v0.1.0`) or run **Release**
+manually in Actions. Updater artifacts stay disabled
 (`bundle.createUpdaterArtifacts: false`) until a signing key is configured.
 
